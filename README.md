@@ -1,6 +1,6 @@
-# PediGuardia Backend API 🏥
+# Colita de Rana - Backend API 🐸
 
-Backend API REST para la aplicación de telemedicina pediátrica PediGuardia.
+Backend API REST para la aplicación de telemedicina pediátrica Colita de Rana.
 
 ## Stack Tecnológico
 
@@ -12,7 +12,7 @@ Backend API REST para la aplicación de telemedicina pediátrica PediGuardia.
 ## Estructura del Proyecto
 
 ```
-pediguardia_backend/
+colitaderana-api/
 ├── server.js              # Entry point
 ├── package.json
 ├── config/
@@ -26,7 +26,7 @@ pediguardia_backend/
 │   ├── doctors.js         # Doctores
 │   ├── consultations.js   # Consultas médicas
 │   ├── messages.js        # Chat
-│   └── payments.js        # Pagos (Pagopar)
+│   └── payments.js        # Pagos
 └── database/
     └── init.js            # Script crear tablas
 ```
@@ -35,14 +35,14 @@ pediguardia_backend/
 
 ### 1. Crear Base de Datos PostgreSQL
 
-Ya tenés una en Render. Podés usar la misma o crear una nueva para PediGuardia.
+Ya tenés una en Render. Podés usar la misma o crear una nueva.
 
 ### 2. Crear Web Service
 
 1. En Render Dashboard → **New** → **Web Service**
 2. Conectar tu repositorio de GitHub
 3. Configurar:
-   - **Name:** pediguardia-api
+   - **Name:** colitaderana-api
    - **Environment:** Node
    - **Build Command:** `npm install`
    - **Start Command:** `npm start`
@@ -64,13 +64,7 @@ PORT = 3000
 Después de deployar, ejecutar una vez para crear las tablas:
 
 ```bash
-# En tu terminal local con las variables de entorno correctas
 npm run db:init
-```
-
-O desde Render Shell:
-```bash
-node database/init.js
 ```
 
 ## API Endpoints
@@ -129,7 +123,7 @@ GET  /api/messages/unread/count        - Contar no leídos
 ### Pagos
 ```
 POST /api/payments/create    - Crear pago
-POST /api/payments/webhook   - Webhook Pagopar
+POST /api/payments/webhook   - Webhook pagos
 POST /api/payments/simulate  - Simular pago (dev)
 GET  /api/payments/history   - Historial
 GET  /api/payments/:uid      - Detalle pago
@@ -138,10 +132,10 @@ GET  /api/payments/:uid      - Detalle pago
 ## Crear Doctora de Prueba
 
 ```bash
-curl -X POST https://tu-api.onrender.com/api/doctors/create \
+curl -X POST https://colitaderana-api.onrender.com/api/doctors/create \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "doctora@pediguardia.com",
+    "email": "doctora@colitaderana.com",
     "password": "123456",
     "nombre": "María",
     "apellido": "González",
@@ -157,21 +151,15 @@ curl -X POST https://tu-api.onrender.com/api/doctors/create \
 ## Desarrollo Local
 
 ```bash
-# Clonar
-git clone [tu-repo]
-cd pediguardia_backend
+git clone https://github.com/Kyubipy/colitaderana-api.git
+cd colitaderana-api
 
-# Instalar dependencias
 npm install
 
-# Copiar variables de entorno
 cp .env.example .env
 # Editar .env con tus valores
 
-# Crear tablas
 npm run db:init
-
-# Correr servidor
 npm run dev
 ```
 
@@ -182,14 +170,6 @@ npm run dev
 - Validación de propiedad en todas las rutas
 - Headers de seguridad con Helmet
 
-## Próximos Pasos
-
-- [ ] Integrar Pagopar real
-- [ ] Push notifications con Firebase Cloud Messaging
-- [ ] Upload de imágenes a S3/Cloudinary
-- [ ] WebSockets para chat en tiempo real
-- [ ] Generación de recetas PDF
-
 ---
 
-**PediGuardia** - Pediatría 24/7 para tu tranquilidad 👶💙
+**Colita de Rana** - Pediatría 24/7 para tu tranquilidad 🐸

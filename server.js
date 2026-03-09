@@ -36,7 +36,7 @@ app.use('/api/payments', paymentsRoutes);
 app.get('/', (req, res) => {
   res.json({ 
     status: 'ok', 
-    message: 'PediGuardia API v1.0',
+    message: 'Colita de Rana API v1.0',
     timestamp: new Date().toISOString()
   });
 });
@@ -60,5 +60,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 PediGuardia API corriendo en puerto ${PORT}`);
+  console.log(`🐸 Colita de Rana API corriendo en puerto ${PORT}`);
 });

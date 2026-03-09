@@ -1,7 +1,7 @@
 {
-  "name": "pediguardia-backend",
+  "name": "colitaderana-api",
   "version": "1.0.0",
-  "description": "Backend API para PediGuardia - Telemedicina Pediátrica",
+  "description": "Backend API para Colita de Rana - Telemedicina Pediátrica",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

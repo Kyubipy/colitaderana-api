@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../config/database');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'pediguardia_secret_key_2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'colitaderana_secret_key_2024';
 
 // Middleware para verificar token
 const verifyToken = async (req, res, next) => {
