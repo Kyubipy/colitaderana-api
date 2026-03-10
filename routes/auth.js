@@ -63,7 +63,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login - Iniciar sesión
+// POST /api/auth/login - Iniciar sesión (busca en users Y doctors)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,39 +72,65 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email y contraseña requeridos' });
     }
 
-    // Buscar usuario
-    const result = await pool.query(
+    // Primero buscar en tabla users
+    const userResult = await pool.query(
       'SELECT * FROM users WHERE email = $1 AND is_active = true',
       [email.toLowerCase()]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Credenciales inválidas' });
+      }
+
+      const token = generateToken(user);
+      return res.json({
+        message: 'Login exitoso',
+        user: {
+          uid: user.uid,
+          email: user.email,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          telefono: user.telefono,
+          photoUrl: user.photo_url,
+          role: user.role
+        },
+        token
+      });
     }
 
-    const user = result.rows[0];
+    // Si no está en users, buscar en doctors
+    const doctorResult = await pool.query(
+      'SELECT * FROM doctors WHERE email = $1 AND is_active = true',
+      [email.toLowerCase()]
+    );
 
-    // Verificar contraseña
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+    if (doctorResult.rows.length > 0) {
+      const doctor = doctorResult.rows[0];
+      const validPassword = await bcrypt.compare(password, doctor.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Credenciales inválidas' });
+      }
+
+      const token = generateToken({ ...doctor, role: 'doctor' });
+      return res.json({
+        message: 'Login exitoso',
+        user: {
+          uid: doctor.uid,
+          email: doctor.email,
+          nombre: doctor.nombre,
+          apellido: doctor.apellido,
+          telefono: doctor.telefono,
+          photoUrl: doctor.photo_url,
+          role: 'doctor'
+        },
+        token
+      });
     }
 
-    const token = generateToken(user);
-
-    res.json({
-      message: 'Login exitoso',
-      user: {
-        uid: user.uid,
-        email: user.email,
-        nombre: user.nombre,
-        apellido: user.apellido,
-        telefono: user.telefono,
-        photoUrl: user.photo_url,
-        role: user.role
-      },
-      token
-    });
+    return res.status(401).json({ error: 'Credenciales inválidas' });
 
   } catch (error) {
     console.error('Error en login:', error);
