@@ -311,4 +311,62 @@ router.put('/:uid/diagnosis', verifyToken, verifyDoctor, async (req, res) => {
   }
 });
 
+// GET /api/consultations/:uid/video-session - Obtener sesión de video
+router.get('/:uid/video-session', verifyToken, async (req, res) => {
+  try {
+    const { uid: userUid, role } = req.user;
+    const { uid } = req.params;
+
+    const result = await pool.query(
+      `SELECT c.*,
+              d.nombre as doctor_nombre, d.apellido as doctor_apellido,
+              p.nombre as patient_nombre, p.apellido as patient_apellido
+       FROM consultations c
+       JOIN doctors d ON c.doctor_uid = d.uid
+       JOIN patients p ON c.patient_uid = p.uid
+       WHERE c.uid = $1`,
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Consulta no encontrada' });
+    }
+
+    const consultation = result.rows[0];
+
+    // Verificar acceso
+    if (role !== 'doctor' && consultation.parent_uid !== userUid) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+    if (role === 'doctor' && consultation.doctor_uid !== userUid) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    // Generar nombre de sala único
+    const roomName = `colitaderana-${uid}`;
+
+    // Nombre para mostrar según rol
+    const displayName = role === 'doctor'
+      ? `Dr(a). ${consultation.doctor_nombre} ${consultation.doctor_apellido}`
+      : `${consultation.patient_nombre} ${consultation.patient_apellido} (Padre/Madre)`;
+
+    res.json({
+      videoSession: {
+        roomName,
+        serverUrl: 'https://meet.jit.si',
+        fullUrl: `https://meet.jit.si/${roomName}`,
+        displayName,
+        consultationUid: uid,
+        tipo: consultation.tipo,
+        status: consultation.status,
+        doctor: `Dr(a). ${consultation.doctor_nombre} ${consultation.doctor_apellido}`,
+        patient: `${consultation.patient_nombre} ${consultation.patient_apellido}`
+      }
+    });
+  } catch (error) {
+    console.error('Error generando sesión de video:', error);
+    res.status(500).json({ error: 'Error generando sesión de video' });
+  }
+});
+
 module.exports = router;
