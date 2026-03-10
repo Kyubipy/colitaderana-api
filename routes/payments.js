@@ -125,13 +125,9 @@ router.post('/webhook', async (req, res) => {
   }
 });
 
-// POST /api/payments/simulate - Simular pago exitoso (solo para desarrollo)
+// POST /api/payments/simulate - Simular pago exitoso (temporal hasta integrar Pagopar)
 router.post('/simulate', verifyToken, async (req, res) => {
   try {
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({ error: 'No disponible en producción' });
-    }
-
     const { consultationUid } = req.body;
     const { uid: userUid } = req.user;
 
