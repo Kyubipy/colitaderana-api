@@ -207,4 +207,32 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+// POST /api/auth/admin/reset-password - Reset temporal (QUITAR EN PRODUCCIÓN)
+router.post('/admin/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword, table } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: 'email y newPassword requeridos' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const targetTable = table === 'doctors' ? 'doctors' : 'users';
+
+    const result = await pool.query(
+      `UPDATE ${targetTable} SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE email = $2 RETURNING email, nombre, apellido`,
+      [hashedPassword, email.toLowerCase()]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ message: 'Contraseña reseteada', user: result.rows[0] });
+  } catch (error) {
+    console.error('Error reseteando contraseña:', error);
+    res.status(500).json({ error: 'Error reseteando contraseña' });
+  }
+});
+
 module.exports = router;
